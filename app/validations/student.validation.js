@@ -1,6 +1,6 @@
 const checkEmpty = (req,res, next) => {
-    const {fullName, age, className} = req.body; 
-    if(fullName && age && className) {
+    const {name, age, className} = req.body; 
+    if(name && age && className) {
         next(); 
     } else {
         res.status(500).send("Cannot be empty fullname, age, className"); 

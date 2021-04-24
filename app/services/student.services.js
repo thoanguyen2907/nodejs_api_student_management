@@ -1,63 +1,65 @@
-let studentList = [
-    {
-        id: 1,
-        "name" : "Thoa Nguyen", 
-        "age" : 20,
-        "classNumber" : "nodejs"
-        },
-    {
-            id: 2,
-            "name" : "Truc Nguyen", 
-            "age" : 16,
-            "classNumber" : "google analytics"
-            }
-]; 
+const { Student } = require("../model");
+ 
 
-const getList = () => {
+const getList = async () => {
+    const studentList = await Student.findAll(); 
+
     if(studentList) {
         return studentList; 
     } else {
         return null; 
     }
 }
-getStudentIndex = (id) => {
-    const index = studentList.findIndex((item) => {return item.id == id});  
-    if(index !== -1) {
-        const student = studentList[index]; 
+getStudentIndex = async (id) => {
+    const student = await Student.findOne({
+        where: {
+            id
+        }
+    })
+    if(student) {
         return student; 
-
-    } else {
-        return null; 
+    }
+    else {
+        return false
     }
 } 
-addStudentToList  = (student) => {
-    student = {
-        id: Math.floor(Math.random()), 
-        ...student, 
-    }
-    studentList = [...studentList,student ]; 
-    return student; 
+addStudentToList  = async (student) => {
+    //  student = await {
+    //     id: Math.floor(Math.random()) * 100, 
+    //     ...student, 
+    // }
+    // studentList =  [...studentList,student ]; 
+    const newStudent = await Student.create(student); 
+
+    return newStudent; 
 }
 
-findOldStudent = (id, name, age,classNumber) => {
-    let index = studentList.findIndex(item => item.id === id); 
-    if(index !== -1) {
-        let oldStudent = studentList[index]; 
-        let updateStudent = {...oldStudent, name, age,classNumber}; 
-        studentList[index] = updateStudent; 
-        return updateStudent; 
-} else {
+findOldStudent = async (id, name, age,classNumber) => {
+    let studentUpdate = await getStudentIndex(id); 
+    if(studentUpdate){
+        studentUpdate.name = name; 
+        studentUpdate.age = age; 
+        studentUpdate.classNumber = classNumber; 
+      const studentUpdated =  await studentUpdate.save(); 
+        return studentUpdated; 
+    }
+   
+ else {
     return false; 
 }
 }
-findStudentToDelete = (id) => {
-    let index = studentList.findIndex(item => item.id == id); 
-      if(index !== -1) {
-          let studentListUpdate = [...studentList]; 
-          studentListUpdate.splice(index, 1); 
-          studentList = studentListUpdate;
-         return studentList[index]; 
-} else {
+findStudentToDelete = async (id) => {
+    let studentDelete = await getStudentIndex(id); 
+
+    if(studentDelete) {
+      await Student.destroy({
+            where: {
+                id
+            }
+        }); 
+    return studentDelete; 
+    }   
+else {
     return false
 }
 }
